@@ -75,9 +75,13 @@ def analizar():
 @app.route("/exportar", methods=["POST"])
 def exportar():
 
-    noticias_json = request.form.get("noticias", "")
+    noticias_json = request.form.get(
+        "noticias",
+        ""
+    )
 
     if not noticias_json:
+
         return render_template(
             "index.html",
             error="No hay noticias para exportar."
@@ -85,7 +89,9 @@ def exportar():
 
     try:
 
-        noticias = json.loads(noticias_json)
+        noticias = json.loads(
+            noticias_json
+        )
 
     except json.JSONDecodeError:
 
@@ -94,7 +100,9 @@ def exportar():
             error="No fue posible procesar las noticias."
         )
 
-    contenido_csv = noticias_a_csv(noticias)
+    contenido_csv = noticias_a_csv(
+        noticias
+    )
 
     return Response(
         contenido_csv,

@@ -79,15 +79,33 @@ def limpiar_titulo(titulo):
     return " ".join(titulo.split())
 
 
+def obtener_dominio(url):
+    """
+    Obtiene únicamente el dominio de una URL.
+    """
+
+    try:
+        dominio = urlparse(url).netloc
+
+        if dominio.startswith("www."):
+            dominio = dominio[4:]
+
+        return dominio
+
+    except Exception:
+        return ""
+
+
 def extraer_noticias(navegador):
     """
-    Extrae títulos y enlaces de una página web.
+    Extrae títulos, enlaces y dominios de una página web.
 
     Se prueban diferentes selectores XPath y posteriormente
     se validan y limpian los resultados.
     """
 
     noticias = []
+
     urls_encontradas = set()
 
     for selector in SELECTORES_NOTICIAS:
@@ -105,32 +123,23 @@ def extraer_noticias(navegador):
 
             url = elemento.get_attribute("href")
 
-
-            # Validar título
-
             if not es_titulo_valido(titulo):
                 continue
-
-
-            # Validar URL
 
             if not es_url_valida(url):
                 continue
 
-
-            # Evitar duplicados
-
             if url in urls_encontradas:
                 continue
 
-
             urls_encontradas.add(url)
 
+            dominio = obtener_dominio(url)
 
             noticias.append({
                 "title": titulo,
-                "url": url
+                "url": url,
+                "domain": dominio
             })
-
 
     return noticias

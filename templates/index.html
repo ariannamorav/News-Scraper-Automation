@@ -12,15 +12,17 @@
 
     <meta
         name="description"
-        content="News Scraper - herramienta de automatización y extracción de noticias."
+        content="News Scraper - herramienta para extraer noticias de páginas web."
     >
 
     <title>News Scraper</title>
+
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet"
     >
+
 
     <link
         rel="stylesheet"
@@ -31,6 +33,7 @@
 
 
 <body>
+
 
     <!-- ==============================
          BARRA DE NAVEGACIÓN
@@ -55,22 +58,10 @@
 
             </a>
 
-
-            <div class="nav-links">
-
-                <a href="#">
-                    Historial
-                </a>
-
-                <a href="#">
-                    Acerca de
-                </a>
-
-            </div>
-
         </div>
 
     </nav>
+
 
 
     <!-- ==============================
@@ -80,12 +71,15 @@
     <main class="container">
 
 
-        <!-- PANTALLA PRINCIPAL -->
+        <!-- ==============================
+             PANTALLA PRINCIPAL
+        =============================== -->
 
         <section
             class="hero"
             id="searchSection"
         >
+
 
             <p class="eyebrow">
                 AUTOMATIZACIÓN WEB
@@ -93,18 +87,16 @@
 
 
             <h1>
-
                 Convierte páginas web
                 <br>
                 en información útil.
-
             </h1>
 
 
             <p class="hero-description">
 
                 Extrae titulares y enlaces de páginas de noticias
-                automáticamente utilizando Selenium y XPath.
+                automáticamente.
 
             </p>
 
@@ -127,6 +119,7 @@
                 id="scraperForm"
             >
 
+
                 <label for="url">
                     URL DE LA PÁGINA
                 </label>
@@ -134,11 +127,12 @@
 
                 <div class="url-input">
 
+
                     <input
                         type="url"
                         id="url"
                         name="url"
-                        placeholder="https://www.noticiascaracol.com/noticias"
+                        placeholder="Ingresa el enlace de la página de noticias"
                         required
                     >
 
@@ -152,11 +146,15 @@
 
                     </button>
 
+
                 </div>
+
 
             </form>
 
+
         </section>
+
 
 
         <!-- ==============================
@@ -169,7 +167,9 @@
             aria-hidden="true"
         >
 
+
             <div class="loading-content">
+
 
                 <p class="eyebrow">
                     ANÁLISIS EN CURSO
@@ -178,10 +178,13 @@
 
                 <div class="loading-title">
 
+
                     <h2>
+
                         Analizando
                         <br>
                         página.
+
                     </h2>
 
 
@@ -191,10 +194,13 @@
 
                     </div>
 
+
                 </div>
 
 
+
                 <div class="loading-status">
+
 
                     <div class="status-item active">
 
@@ -228,110 +234,18 @@
 
                     </div>
 
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ==============================
-             CARACTERÍSTICAS
-        =============================== -->
-
-        <section
-            class="features"
-            id="featuresSection"
-        >
-
-
-            <div class="feature">
-
-                <span>
-                    01
-                </span>
-
-                <div>
-
-                    <strong>
-                        Selenium
-                    </strong>
-
-                    <p>
-                        Automatización del navegador.
-                    </p>
 
                 </div>
 
-            </div>
-
-
-            <div class="feature">
-
-                <span>
-                    02
-                </span>
-
-                <div>
-
-                    <strong>
-                        XPath
-                    </strong>
-
-                    <p>
-                        Localización precisa de elementos.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="feature">
-
-                <span>
-                    03
-                </span>
-
-                <div>
-
-                    <strong>
-                        CSV
-                    </strong>
-
-                    <p>
-                        Exportación de los resultados.
-                    </p>
-
-                </div>
 
             </div>
 
 
         </section>
+
 
     </main>
 
-
-    <!-- ==============================
-         FOOTER
-    =============================== -->
-
-    <footer>
-
-        <div class="container">
-
-            <span>
-                News Scraper
-            </span>
-
-            <span>
-                Selenium · XPath · Flask
-            </span>
-
-        </div>
-
-    </footer>
 
 
     <!-- ==============================
@@ -340,47 +254,58 @@
 
     <script>
 
-        const form = document.getElementById("scraperForm");
+
+        const form =
+            document.getElementById("scraperForm");
+
 
         const searchSection =
             document.getElementById("searchSection");
 
+
         const loadingSection =
             document.getElementById("loadingSection");
 
-        const featuresSection =
-            document.getElementById("featuresSection");
 
         const analyzeButton =
             document.getElementById("analyzeButton");
 
 
+
+        /*
+         * Cuando el usuario envía el formulario,
+         * mostramos la pantalla de carga.
+         */
+
         form.addEventListener("submit", function () {
 
+
             /*
-             * Evitamos que el usuario pulse varias veces
-             * el botón mientras Selenium trabaja.
+             * Evitar múltiples clics mientras
+             * Selenium está procesando la página.
              */
 
             analyzeButton.disabled = true;
 
-            analyzeButton.textContent = "Analizando...";
+
+            analyzeButton.textContent =
+                "Analizando...";
 
 
             /*
-             * Ocultamos la interfaz principal.
+             * Ocultar la pantalla principal.
              */
 
-            searchSection.style.display = "none";
-
-            featuresSection.style.display = "none";
+            searchSection.style.display =
+                "none";
 
 
             /*
-             * Mostramos la pantalla de carga.
+             * Mostrar la pantalla de carga.
              */
 
             loadingSection.classList.add("show");
+
 
             loadingSection.setAttribute(
                 "aria-hidden",
@@ -390,9 +315,9 @@
         });
 
 
+
         /*
-         * Cambiamos automáticamente los estados
-         * para dar sensación de progreso.
+         * Estados del proceso.
          */
 
         const statusItems =
@@ -402,10 +327,21 @@
         let currentStatus = 0;
 
 
+
+        /*
+         * Cambiar automáticamente entre
+         * los diferentes estados.
+         */
+
         setInterval(function () {
 
-            if (!loadingSection.classList.contains("show")) {
+
+            if (
+                !loadingSection.classList.contains("show")
+            ) {
+
                 return;
+
             }
 
 
@@ -418,7 +354,10 @@
 
             currentStatus++;
 
-            if (currentStatus >= statusItems.length) {
+
+            if (
+                currentStatus >= statusItems.length
+            ) {
 
                 currentStatus = 0;
 
@@ -428,7 +367,9 @@
             statusItems[currentStatus]
                 .classList.add("active");
 
+
         }, 1800);
+
 
     </script>
 
