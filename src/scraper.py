@@ -3,16 +3,21 @@ from urllib.parse import urlparse
 from selenium.webdriver.common.by import By
 
 
+# ============================================================
+# SELECTORES
+# ============================================================
+
 SELECTORES_NOTICIAS = [
-    "//h2[contains(@class, 'Promo-title')]//a",
-    "//article//h1//a",
-    "//article//h2//a",
-    "//article//h3//a",
-    "//h1//a",
-    "//h2//a",
-    "//h3//a",
+    "//article//a[@href]",
+    "//h1//a[@href]",
+    "//h2//a[@href]",
+    "//h3//a[@href]",
 ]
 
+
+# ============================================================
+# PALABRAS QUE NO SON NOTICIAS
+# ============================================================
 
 PALABRAS_EXCLUIDAS = {
     "inicio",
@@ -29,12 +34,62 @@ PALABRAS_EXCLUIDAS = {
     "menu",
     "buscar",
     "search",
+    "fútbol y más deportes",
+    "programa de transparencia",
+    "términos y condiciones",
+    "terminos y condiciones",
+    "política de datos personales",
+    "politica de datos personales",
 }
 
 
+# ============================================================
+# EXTENSIONES QUE NO SON NOTICIAS
+# ============================================================
+
+EXTENSIONES_EXCLUIDAS = {
+    ".pdf",
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".gif",
+    ".webp",
+    ".svg",
+    ".mp3",
+    ".mp4",
+    ".zip",
+}
+
+
+# ============================================================
+# PALABRAS QUE INDICAN CONTENIDO INSTITUCIONAL
+# ============================================================
+
+PALABRAS_INSTITUCIONALES = {
+    "política",
+    "politica",
+    "términos",
+    "terminos",
+    "manual",
+    "programa",
+    "transparencia",
+    "protección de datos",
+    "proteccion de datos",
+    "privacidad",
+    "cookies",
+    "contacto",
+    "nosotros",
+    "corporativo",
+}
+
+
+# ============================================================
+# VALIDAR URL
+# ============================================================
+
 def es_url_valida(url):
     """
-    Comprueba que la URL tenga un protocolo válido.
+    Comprueba que la URL sea válida.
     """
 
     if not url:
@@ -49,42 +104,104 @@ def es_url_valida(url):
         return False
 
 
+# ============================================================
+# VALIDAR EXTENSIÓN
+# ============================================================
+
+def es_enlace_de_noticia(url):
+    """
+    Comprueba que el enlace no apunte a un archivo
+    o recurso que no sea una noticia.
+    """
+
+    if not url:
+        return False
+
+    try:
+        ruta = urlparse(url).path.lower()
+
+        for extension in EXTENSIONES_EXCLUIDAS:
+
+            if ruta.endswith(extension):
+                return False
+
+        return True
+
+    except Exception:
+        return False
+
+
+# ============================================================
+# LIMPIAR TÍTULO
+# ============================================================
+
+def limpiar_titulo(titulo):
+    """
+    Normaliza los espacios innecesarios.
+    """
+
+    if not titulo:
+        return ""
+
+    return " ".join(titulo.split())
+
+
+# ============================================================
+# VALIDAR TÍTULO
+# ============================================================
+
 def es_titulo_valido(titulo):
     """
-    Comprueba que el texto tenga características
-    mínimas para considerarse un titular.
+    Determina si un texto puede considerarse
+    un titular de noticia.
     """
 
     if not titulo:
         return False
 
-    titulo = " ".join(titulo.split())
+    titulo = limpiar_titulo(titulo)
 
-    if len(titulo) < 15:
+    # Evitar textos demasiado cortos
+    if len(titulo) < 25:
         return False
 
     titulo_minusculas = titulo.lower()
 
+    # Evitar elementos conocidos de navegación
     if titulo_minusculas in PALABRAS_EXCLUIDAS:
         return False
+
+    # Evitar contenido institucional
+    for palabra in PALABRAS_INSTITUCIONALES:
+
+        if palabra in titulo_minusculas:
+            return False
 
     return True
 
 
-def limpiar_titulo(titulo):
-    """
-    Normaliza espacios innecesarios del titular.
-    """
-
-    return " ".join(titulo.split())
-
+# ============================================================
+# OBTENER DOMINIO
+# ============================================================
 
 def obtener_dominio(url):
     """
     Obtiene únicamente el dominio de una URL.
+
+    Ejemplo:
+
+    https://www.rcnradio.com/colombia/noticia
+
+    Resultado:
+
+    rcnradio.com
     """
 
+    if not url:
+        return ""
+
     try:
+
         dominio = urlparse(url).netloc
 
         if dominio.startswith("www."):
@@ -96,12 +213,20 @@ def obtener_dominio(url):
         return ""
 
 
+# ============================================================
+# EXTRAER NOTICIAS
+# ============================================================
+
 def extraer_noticias(navegador):
     """
-    Extrae títulos, enlaces y dominios de una página web.
+    Extrae titulares, enlaces y dominios
+    desde una página web.
 
-    Se prueban diferentes selectores XPath y posteriormente
-    se validan y limpian los resultados.
+    Devuelve una lista de diccionarios con:
+
+        titulo
+        enlace
+        dominio
     """
 
     noticias = []
@@ -110,36 +235,91 @@ def extraer_noticias(navegador):
 
     for selector in SELECTORES_NOTICIAS:
 
-        elementos = navegador.find_elements(
-            By.XPATH,
-            selector
-        )
+        try:
+
+            elementos = navegador.find_elements(
+                By.XPATH,
+                selector
+            )
+
+        except Exception:
+
+            continue
 
         for elemento in elementos:
 
-            titulo = limpiar_titulo(
-                elemento.text
-            )
+            # ------------------------------------------------
+            # OBTENER TÍTULO
+            # ------------------------------------------------
 
-            url = elemento.get_attribute("href")
+            try:
+
+                titulo = limpiar_titulo(
+                    elemento.text
+                )
+
+            except Exception:
+
+                continue
+
+            # ------------------------------------------------
+            # OBTENER URL
+            # ------------------------------------------------
+
+            try:
+
+                url = elemento.get_attribute(
+                    "href"
+                )
+
+            except Exception:
+
+                continue
+
+            # ------------------------------------------------
+            # VALIDAR TÍTULO
+            # ------------------------------------------------
 
             if not es_titulo_valido(titulo):
                 continue
 
+            # ------------------------------------------------
+            # VALIDAR URL
+            # ------------------------------------------------
+
             if not es_url_valida(url):
                 continue
+
+            # ------------------------------------------------
+            # DESCARTAR ARCHIVOS
+            # ------------------------------------------------
+
+            if not es_enlace_de_noticia(url):
+                continue
+
+            # ------------------------------------------------
+            # EVITAR DUPLICADOS
+            # ------------------------------------------------
 
             if url in urls_encontradas:
                 continue
 
             urls_encontradas.add(url)
 
+            # ------------------------------------------------
+            # OBTENER DOMINIO
+            # ------------------------------------------------
+
             dominio = obtener_dominio(url)
 
+            # ------------------------------------------------
+            # GUARDAR NOTICIA
+            # ------------------------------------------------
+
             noticias.append({
-                "title": titulo,
-                "url": url,
-                "domain": dominio
+                "titulo": titulo,
+                "enlace": url,
+                "dominio": dominio
             })
 
     return noticias

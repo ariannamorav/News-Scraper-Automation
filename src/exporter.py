@@ -3,17 +3,6 @@ from io import StringIO
 
 
 def noticias_a_csv(noticias):
-    """
-    Convierte una lista de noticias en contenido CSV.
-
-    Las columnas utilizadas por la aplicación son:
-    - title
-    - url
-    - domain
-
-    Se utiliza punto y coma como separador para facilitar
-    la apertura del archivo directamente en Excel.
-    """
 
     archivo = StringIO()
 
@@ -36,16 +25,10 @@ def noticias_a_csv(noticias):
 
     for noticia in noticias:
 
-        fila = {
+        escritor.writerow({
             "title": noticia.get("title", ""),
             "url": noticia.get("url", ""),
             "domain": noticia.get("domain", "")
-        }
+        })
 
-        escritor.writerow(fila)
-
-    contenido = archivo.getvalue()
-
-    # BOM para que Excel reconozca correctamente
-    # los caracteres UTF-8.
-    return "\ufeff" + contenido
+    return "\ufeff" + archivo.getvalue()

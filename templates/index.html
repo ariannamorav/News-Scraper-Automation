@@ -12,17 +12,15 @@
 
     <meta
         name="description"
-        content="News Scraper - herramienta para extraer noticias de páginas web."
+        content="News Scraper Automation - extracción automatizada de noticias."
     >
 
-    <title>News Scraper</title>
-
+    <title>News Scraper Automation</title>
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet"
     >
-
 
     <link
         rel="stylesheet"
@@ -35,343 +33,505 @@
 <body>
 
 
-    <!-- ==============================
-         BARRA DE NAVEGACIÓN
-    =============================== -->
+<!-- ========================================================
+     NAVBAR
+========================================================= -->
 
-    <nav class="navbar">
+<nav class="navbar">
 
-        <div class="container">
+    <div class="nav-container">
+
+        <a href="/" class="brand">
+
+            <span class="brand-mark">
+                NS
+            </span>
+
+            <span>
+                News Scraper
+            </span>
+
+        </a>
+
+
+        <div class="nav-actions">
 
             <a
-                class="brand"
                 href="/"
+                class="nav-button active"
             >
+                Analizar
+            </a>
 
-                <span class="brand-mark">
-                    NS
-                </span>
+            <a
+                href="/historial-ui"
+                class="nav-button"
+            >
+                Historial
+            </a>
 
-                <span>
-                    News Scraper
-                </span>
-
+            <a
+                href="/estadisticas-ui"
+                class="nav-button"
+            >
+                Estadísticas
             </a>
 
         </div>
 
-    </nav>
+    </div>
+
+</nav>
 
 
 
-    <!-- ==============================
-         CONTENIDO PRINCIPAL
-    =============================== -->
+<!-- ========================================================
+     CONTENIDO
+========================================================= -->
 
-    <main class="container">
+<main class="main-container">
 
 
-        <!-- ==============================
-             PANTALLA PRINCIPAL
-        =============================== -->
+    <!-- ====================================================
+         HERO / BUSCADOR
+    ===================================================== -->
 
-        <section
-            class="hero"
-            id="searchSection"
+    <section
+        class="hero"
+        id="searchSection"
+    >
+
+        <p class="eyebrow">
+            AUTOMATIZACIÓN WEB
+        </p>
+
+
+        <h1>
+            Convierte páginas web
+            <br>
+            en información útil.
+        </h1>
+
+
+        <p class="hero-description">
+
+            Extrae titulares y enlaces de páginas de noticias
+            automáticamente y almacena los resultados.
+
+        </p>
+
+
+        {% if error %}
+
+        <div class="error-message">
+
+            {{ error }}
+
+        </div>
+
+        {% endif %}
+
+
+        <form
+            class="scraper-form"
+            method="POST"
+            action="/analizar"
+            id="scraperForm"
         >
 
+            <label for="url">
+                URL DE LA PÁGINA
+            </label>
+
+
+            <div class="url-input">
+
+                <input
+                    type="url"
+                    id="url"
+                    name="url"
+                    placeholder="https://www.noticiascaracol.com/noticias"
+                    required
+                >
+
+
+                <button
+                    type="submit"
+                    id="analyzeButton"
+                >
+
+                    Analizar página
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+
+    <!-- ====================================================
+         LOADING
+    ===================================================== -->
+
+    <section
+        class="loading-screen"
+        id="loadingSection"
+        aria-hidden="true"
+    >
+
+        <div class="loading-content">
 
             <p class="eyebrow">
-                AUTOMATIZACIÓN WEB
+                ANÁLISIS EN CURSO
             </p>
 
 
-            <h1>
-                Convierte páginas web
-                <br>
-                en información útil.
-            </h1>
+            <div class="loading-title">
+
+                <h2>
+                    Analizando
+                    <br>
+                    página.
+                </h2>
 
 
-            <p class="hero-description">
+                <div class="loader">
 
-                Extrae titulares y enlaces de páginas de noticias
-                automáticamente.
+                    <div class="loader-ring"></div>
 
-            </p>
-
-
-            {% if error %}
-
-            <div class="error-message">
-
-                {{ error }}
+                </div>
 
             </div>
 
-            {% endif %}
 
+            <div class="loading-status">
 
-            <form
-                class="scraper-form"
-                method="POST"
-                action="/analizar"
-                id="scraperForm"
-            >
+                <div class="status-item active">
 
+                    <span class="status-indicator"></span>
 
-                <label for="url">
-                    URL DE LA PÁGINA
-                </label>
-
-
-                <div class="url-input">
-
-
-                    <input
-                        type="url"
-                        id="url"
-                        name="url"
-                        placeholder="Ingresa el enlace de la página de noticias"
-                        required
-                    >
-
-
-                    <button
-                        type="submit"
-                        id="analyzeButton"
-                    >
-
-                        Analizar página
-
-                    </button>
-
+                    <span>
+                        Conectando con el sitio
+                    </span>
 
                 </div>
 
 
-            </form>
+                <div class="status-item">
+
+                    <span class="status-indicator"></span>
+
+                    <span>
+                        Extrayendo noticias
+                    </span>
+
+                </div>
 
 
-        </section>
+                <div class="status-item">
+
+                    <span class="status-indicator"></span>
+
+                    <span>
+                        Procesando resultados
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
 
 
 
-        <!-- ==============================
-             PANTALLA DE CARGA
-        =============================== -->
+    <!-- ====================================================
+         RESULTADOS
+    ===================================================== -->
 
-        <section
-            class="loading-screen"
-            id="loadingSection"
-            aria-hidden="true"
-        >
+    {% if resultados %}
 
+    <section class="results-section">
 
-            <div class="loading-content">
+        <div class="results-header">
 
+            <div>
 
                 <p class="eyebrow">
-                    ANÁLISIS EN CURSO
+                    RESULTADO DEL ANÁLISIS
                 </p>
 
+                <h2>
+                    Noticias encontradas
+                </h2>
 
-                <div class="loading-title">
-
-
-                    <h2>
-
-                        Analizando
-                        <br>
-                        página.
-
-                    </h2>
-
-
-                    <div class="loader">
-
-                        <div class="loader-ring"></div>
-
-                    </div>
-
-
-                </div>
-
-
-
-                <div class="loading-status">
-
-
-                    <div class="status-item active">
-
-                        <span class="status-indicator"></span>
-
-                        <span>
-                            Conectando con el sitio
-                        </span>
-
-                    </div>
-
-
-                    <div class="status-item">
-
-                        <span class="status-indicator"></span>
-
-                        <span>
-                            Extrayendo noticias
-                        </span>
-
-                    </div>
-
-
-                    <div class="status-item">
-
-                        <span class="status-indicator"></span>
-
-                        <span>
-                            Procesando resultados
-                        </span>
-
-                    </div>
-
-
-                </div>
-
+                <p class="results-url">
+                    {{ resultados.url }}
+                </p>
 
             </div>
 
 
-        </section>
+            <div class="results-actions">
+
+                <a
+                    href="/exportar/{{ resultados.busqueda_id }}"
+                    class="button-secondary"
+                >
+                    Exportar CSV
+                </a>
+
+                <a
+                    href="/historial-ui/{{ resultados.busqueda_id }}"
+                    class="button-secondary"
+                >
+                    Ver detalle
+                </a>
+
+            </div>
+
+        </div>
 
 
-    </main>
+        <div class="metrics">
+
+            <div class="metric-card">
+
+                <span class="metric-label">
+                    NOTICIAS
+                </span>
+
+                <strong>
+                    {{ resultados.cantidad_noticias }}
+                </strong>
+
+            </div>
+
+
+            <div class="metric-card">
+
+                <span class="metric-label">
+                    BÚSQUEDA
+                </span>
+
+                <strong>
+                    #{{ resultados.busqueda_id }}
+                </strong>
+
+            </div>
+
+
+            <div class="metric-card">
+
+                <span class="metric-label">
+                    ESTADO
+                </span>
+
+                <strong class="success-text">
+                    COMPLETADO
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="news-list">
+
+            {% for noticia in resultados.noticias %}
+
+            <article class="news-card">
+
+                <div class="news-number">
+                    {{ loop.index }}
+                </div>
+
+
+                <div class="news-content">
+
+                    <h3>
+                        {{ noticia.titulo }}
+                    </h3>
+
+
+                    {% if noticia.enlace %}
+
+                    <a
+                        href="{{ noticia.enlace }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="news-link"
+                    >
+                        Abrir noticia →
+                    </a>
+
+                    {% endif %}
+
+
+                    {% if noticia.dominio %}
+
+                    <span class="domain">
+                        {{ noticia.dominio }}
+                    </span>
+
+                    {% endif %}
+
+                </div>
+
+            </article>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+    {% endif %}
+
+
+</main>
 
 
 
-    <!-- ==============================
-         JAVASCRIPT
-    =============================== -->
+<!-- ========================================================
+     BOTÓN VOLVER ARRIBA
+========================================================= -->
 
-    <script>
-
-
-        const form =
-            document.getElementById("scraperForm");
-
-
-        const searchSection =
-            document.getElementById("searchSection");
-
-
-        const loadingSection =
-            document.getElementById("loadingSection");
-
-
-        const analyzeButton =
-            document.getElementById("analyzeButton");
+<button
+    id="backToTop"
+    class="back-to-top"
+    title="Volver arriba"
+>
+    ↑
+</button>
 
 
 
-        /*
-         * Cuando el usuario envía el formulario,
-         * mostramos la pantalla de carga.
-         */
+<!-- ========================================================
+     JAVASCRIPT
+========================================================= -->
 
-        form.addEventListener("submit", function () {
+<script>
 
+const form =
+    document.getElementById("scraperForm");
 
-            /*
-             * Evitar múltiples clics mientras
-             * Selenium está procesando la página.
-             */
+const searchSection =
+    document.getElementById("searchSection");
 
-            analyzeButton.disabled = true;
+const loadingSection =
+    document.getElementById("loadingSection");
 
-
-            analyzeButton.textContent =
-                "Analizando...";
-
-
-            /*
-             * Ocultar la pantalla principal.
-             */
-
-            searchSection.style.display =
-                "none";
+const analyzeButton =
+    document.getElementById("analyzeButton");
 
 
-            /*
-             * Mostrar la pantalla de carga.
-             */
+if (form) {
 
-            loadingSection.classList.add("show");
+    form.addEventListener("submit", function () {
 
+        analyzeButton.disabled = true;
 
-            loadingSection.setAttribute(
-                "aria-hidden",
-                "false"
-            );
+        analyzeButton.textContent =
+            "Analizando...";
 
-        });
+        searchSection.style.display =
+            "none";
 
+        loadingSection.classList.add("show");
 
+        loadingSection.setAttribute(
+            "aria-hidden",
+            "false"
+        );
 
-        /*
-         * Estados del proceso.
-         */
+    });
 
-        const statusItems =
-            document.querySelectorAll(".status-item");
-
-
-        let currentStatus = 0;
+}
 
 
+const statusItems =
+    document.querySelectorAll(".status-item");
 
-        /*
-         * Cambiar automáticamente entre
-         * los diferentes estados.
-         */
-
-        setInterval(function () {
+let currentStatus = 0;
 
 
-            if (
-                !loadingSection.classList.contains("show")
-            ) {
+setInterval(function () {
 
-                return;
+    if (
+        !loadingSection ||
+        !loadingSection.classList.contains("show")
+    ) {
 
-            }
+        return;
 
-
-            statusItems.forEach(function (item) {
-
-                item.classList.remove("active");
-
-            });
+    }
 
 
-            currentStatus++;
+    statusItems.forEach(function (item) {
+
+        item.classList.remove("active");
+
+    });
 
 
-            if (
-                currentStatus >= statusItems.length
-            ) {
-
-                currentStatus = 0;
-
-            }
+    currentStatus++;
 
 
-            statusItems[currentStatus]
-                .classList.add("active");
+    if (
+        currentStatus >= statusItems.length
+    ) {
+
+        currentStatus = 0;
+
+    }
 
 
-        }, 1800);
+    statusItems[currentStatus]
+        .classList.add("active");
 
 
-    </script>
+}, 1800);
+
+
+
+/* ========================================================
+   VOLVER ARRIBA
+========================================================= */
+
+const backToTop =
+    document.getElementById("backToTop");
+
+
+window.addEventListener("scroll", function () {
+
+    if (window.scrollY > 400) {
+
+        backToTop.classList.add("show");
+
+    } else {
+
+        backToTop.classList.remove("show");
+
+    }
+
+});
+
+
+backToTop.addEventListener("click", function () {
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+});
+
+</script>
 
 
 </body>
