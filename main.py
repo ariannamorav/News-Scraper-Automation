@@ -1,52 +1,20 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-
-from src.exporter import export_to_csv
+from src.browser import crear_navegador
+from src.scraper import extraer_noticias
 
 
 def main():
-    driver = webdriver.Chrome()
+    navegador = crear_navegador()
 
-    driver.get("http://localhost:5500/src/test_page.html")
+    navegador.get("http://localhost:5500/src/test_page.html")
 
-    news_elements = driver.find_elements(
-        By.XPATH,
-        "//article"
-    )
+    noticias = extraer_noticias(navegador)
 
-    news = []
+    navegador.quit()
 
-    for article in news_elements:
+    print(f"Noticias encontradas: {len(noticias)}")
 
-        title = article.find_element(
-            By.XPATH,
-            "./h2"
-        ).text
-
-        description = article.find_element(
-            By.XPATH,
-            "./p"
-        ).text
-
-        url = article.find_element(
-            By.XPATH,
-            "./a"
-        ).get_attribute("href")
-
-        news.append({
-            "title": title,
-            "description": description,
-            "url": url
-        })
-
-    driver.quit()
-
-    export_to_csv(
-        news,
-        "data/noticias.csv"
-    )
-
-    print(f"Noticias exportadas: {len(news)}")
+    for noticia in noticias:
+        print(noticia["title"])
 
 
 if __name__ == "__main__":
