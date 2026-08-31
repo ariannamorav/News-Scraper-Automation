@@ -6,7 +6,7 @@ from src.exporter import export_to_csv
 def main():
     navegador = crear_navegador(headless=True)
 
-    navegador.get("http://localhost:5500/src/test_page.html")
+    navegador.get("https://www.noticiascaracol.com/noticias")
 
     noticias = extraer_noticias(navegador)
 

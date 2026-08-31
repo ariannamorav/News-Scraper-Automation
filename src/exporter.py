@@ -1,12 +1,16 @@
 import csv
+from io import StringIO
 
 
-def export_to_csv(news, filename):
-    with open(filename, "w", newline="", encoding="utf-8") as file:
-        writer = csv.DictWriter(
-            file,
-            fieldnames=["title", "description", "url"]
-        )
+def noticias_a_csv(noticias):
+    archivo = StringIO()
 
-        writer.writeheader()
-        writer.writerows(news)
+    escritor = csv.DictWriter(
+        archivo,
+        fieldnames=["title", "url"]
+    )
+
+    escritor.writeheader()
+    escritor.writerows(noticias)
+
+    return archivo.getvalue()

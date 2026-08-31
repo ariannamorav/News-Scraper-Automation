@@ -1,33 +1,26 @@
 from selenium.webdriver.common.by import By
 
 
+XPATH_NOTICIAS = "//h2[contains(@class, 'Promo-title')]//a"
+
+
 def extraer_noticias(navegador):
     elementos = navegador.find_elements(
         By.XPATH,
-        "//article"
+        XPATH_NOTICIAS
     )
 
     noticias = []
 
     for elemento in elementos:
-        titulo = elemento.find_element(
-            By.XPATH,
-            "./h2"
-        ).text
+        titulo = elemento.text.strip()
+        url = elemento.get_attribute("href")
 
-        descripcion = elemento.find_element(
-            By.XPATH,
-            "./p"
-        ).text
-
-        url = elemento.find_element(
-            By.XPATH,
-            "./a"
-        ).get_attribute("href")
+        if not titulo or not url:
+            continue
 
         noticias.append({
             "title": titulo,
-            "description": descripcion,
             "url": url
         })
 
