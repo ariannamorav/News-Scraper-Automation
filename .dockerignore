@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+*.pyc
+.env
+.env.*
+.git/
+.gitignore
+debug_rcn.html
+data/*.csv

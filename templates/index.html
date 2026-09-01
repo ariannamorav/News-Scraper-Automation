@@ -121,21 +121,19 @@
         </p>
 
 
-        {% if error %}
+        <!-- MENSAJE DE ERROR -->
 
-        <div class="error-message">
+        <div
+            id="errorMessage"
+            class="error-message"
+            style="display: none;"
+        ></div>
 
-            {{ error }}
 
-        </div>
-
-        {% endif %}
-
+        <!-- FORMULARIO -->
 
         <form
             class="scraper-form"
-            method="POST"
-            action="/analizar"
             id="scraperForm"
         >
 
@@ -159,9 +157,7 @@
                     type="submit"
                     id="analyzeButton"
                 >
-
                     Analizar página
-
                 </button>
 
             </div>
@@ -253,9 +249,11 @@
          RESULTADOS
     ===================================================== -->
 
-    {% if resultados %}
-
-    <section class="results-section">
+    <section
+        class="results-section"
+        id="resultsSection"
+        style="display: none;"
+    >
 
         <div class="results-header">
 
@@ -269,9 +267,10 @@
                     Noticias encontradas
                 </h2>
 
-                <p class="results-url">
-                    {{ resultados.url }}
-                </p>
+                <p
+                    class="results-url"
+                    id="resultsUrl"
+                ></p>
 
             </div>
 
@@ -279,14 +278,16 @@
             <div class="results-actions">
 
                 <a
-                    href="/exportar/{{ resultados.busqueda_id }}"
+                    href="#"
+                    id="exportButton"
                     class="button-secondary"
                 >
                     Exportar CSV
                 </a>
 
                 <a
-                    href="/historial-ui/{{ resultados.busqueda_id }}"
+                    href="#"
+                    id="detailButton"
                     class="button-secondary"
                 >
                     Ver detalle
@@ -297,6 +298,9 @@
         </div>
 
 
+
+        <!-- MÉTRICAS -->
+
         <div class="metrics">
 
             <div class="metric-card">
@@ -305,8 +309,8 @@
                     NOTICIAS
                 </span>
 
-                <strong>
-                    {{ resultados.cantidad_noticias }}
+                <strong id="newsCount">
+                    0
                 </strong>
 
             </div>
@@ -318,8 +322,8 @@
                     BÚSQUEDA
                 </span>
 
-                <strong>
-                    #{{ resultados.busqueda_id }}
+                <strong id="searchId">
+                    -
                 </strong>
 
             </div>
@@ -340,57 +344,15 @@
         </div>
 
 
-        <div class="news-list">
 
-            {% for noticia in resultados.noticias %}
+        <!-- LISTA DE NOTICIAS -->
 
-            <article class="news-card">
-
-                <div class="news-number">
-                    {{ loop.index }}
-                </div>
-
-
-                <div class="news-content">
-
-                    <h3>
-                        {{ noticia.titulo }}
-                    </h3>
-
-
-                    {% if noticia.enlace %}
-
-                    <a
-                        href="{{ noticia.enlace }}"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="news-link"
-                    >
-                        Abrir noticia →
-                    </a>
-
-                    {% endif %}
-
-
-                    {% if noticia.dominio %}
-
-                    <span class="domain">
-                        {{ noticia.dominio }}
-                    </span>
-
-                    {% endif %}
-
-                </div>
-
-            </article>
-
-            {% endfor %}
-
-        </div>
+        <div
+            class="news-list"
+            id="newsList"
+        ></div>
 
     </section>
-
-    {% endif %}
 
 
 </main>
@@ -417,6 +379,11 @@
 
 <script>
 
+
+/* ========================================================
+   ELEMENTOS
+========================================================= */
+
 const form =
     document.getElementById("scraperForm");
 
@@ -426,21 +393,373 @@ const searchSection =
 const loadingSection =
     document.getElementById("loadingSection");
 
+const resultsSection =
+    document.getElementById("resultsSection");
+
 const analyzeButton =
     document.getElementById("analyzeButton");
 
+const errorMessage =
+    document.getElementById("errorMessage");
 
-if (form) {
+const newsList =
+    document.getElementById("newsList");
 
-    form.addEventListener("submit", function () {
+const newsCount =
+    document.getElementById("newsCount");
 
-        analyzeButton.disabled = true;
+const searchId =
+    document.getElementById("searchId");
+
+const resultsUrl =
+    document.getElementById("resultsUrl");
+
+const exportButton =
+    document.getElementById("exportButton");
+
+const detailButton =
+    document.getElementById("detailButton");
+
+
+
+/* ========================================================
+   ESTADOS DE CARGA
+========================================================= */
+
+const statusItems =
+    document.querySelectorAll(".status-item");
+
+let currentStatus = 0;
+
+
+const statusInterval =
+    setInterval(function () {
+
+        if (
+            !loadingSection ||
+            !loadingSection.classList.contains("show")
+        ) {
+
+            return;
+
+        }
+
+
+        statusItems.forEach(function (item) {
+
+            item.classList.remove("active");
+
+        });
+
+
+        currentStatus++;
+
+
+        if (
+            currentStatus >= statusItems.length
+        ) {
+
+            currentStatus = 0;
+
+        }
+
+
+        statusItems[currentStatus]
+            .classList.add("active");
+
+
+    }, 1800);
+
+
+
+/* ========================================================
+   MOSTRAR ERROR
+========================================================= */
+
+function mostrarError(mensaje) {
+
+    errorMessage.textContent = mensaje;
+
+    errorMessage.style.display = "block";
+
+}
+
+
+
+/* ========================================================
+   OCULTAR ERROR
+========================================================= */
+
+function ocultarError() {
+
+    errorMessage.textContent = "";
+
+    errorMessage.style.display = "none";
+
+}
+
+
+
+/* ========================================================
+   CREAR TARJETA DE NOTICIA
+========================================================= */
+
+function crearNoticia(noticia, numero) {
+
+    const article =
+        document.createElement("article");
+
+    article.className =
+        "news-card";
+
+
+    const number =
+        document.createElement("div");
+
+    number.className =
+        "news-number";
+
+    number.textContent =
+        numero;
+
+
+    const content =
+        document.createElement("div");
+
+    content.className =
+        "news-content";
+
+
+    const title =
+        document.createElement("h3");
+
+    title.textContent =
+        noticia.titulo || "Sin título";
+
+
+    content.appendChild(title);
+
+
+    if (noticia.enlace) {
+
+        const link =
+            document.createElement("a");
+
+        link.href =
+            noticia.enlace;
+
+        link.target =
+            "_blank";
+
+        link.rel =
+            "noopener noreferrer";
+
+        link.className =
+            "news-link";
+
+        link.textContent =
+            "Abrir noticia →";
+
+
+        content.appendChild(link);
+
+    }
+
+
+    if (noticia.dominio) {
+
+        const domain =
+            document.createElement("span");
+
+        domain.className =
+            "domain";
+
+        domain.textContent =
+            noticia.dominio;
+
+
+        content.appendChild(domain);
+
+    }
+
+
+    article.appendChild(number);
+
+    article.appendChild(content);
+
+
+    return article;
+
+}
+
+
+
+/* ========================================================
+   MOSTRAR RESULTADOS
+========================================================= */
+
+function mostrarResultados(data) {
+
+    newsList.innerHTML = "";
+
+
+    resultsUrl.textContent =
+        data.url || "";
+
+
+    newsCount.textContent =
+        data.cantidad_noticias || 0;
+
+
+    searchId.textContent =
+        "#" + (data.busqueda_id || "");
+
+
+    if (data.busqueda_id) {
+
+        exportButton.href =
+            "/exportar/" + data.busqueda_id;
+
+
+        detailButton.href =
+            "/historial-ui/" + data.busqueda_id;
+
+    }
+
+
+    if (
+        data.noticias &&
+        data.noticias.length > 0
+    ) {
+
+        data.noticias.forEach(
+            function (noticia, index) {
+
+                const card =
+                    crearNoticia(
+                        noticia,
+                        index + 1
+                    );
+
+
+                newsList.appendChild(card);
+
+            }
+        );
+
+    } else {
+
+        const empty =
+            document.createElement("div");
+
+        empty.className =
+            "empty-state";
+
+
+        const title =
+            document.createElement("h3");
+
+        title.textContent =
+            "No se encontraron noticias.";
+
+
+        empty.appendChild(title);
+
+        newsList.appendChild(empty);
+
+    }
+
+
+    loadingSection.classList.remove("show");
+
+    loadingSection.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+
+    resultsSection.style.display =
+        "block";
+
+
+    searchSection.style.display =
+        "block";
+
+
+    analyzeButton.disabled =
+        false;
+
+
+    analyzeButton.textContent =
+        "Analizar página";
+
+
+    resultsSection.scrollIntoView({
+        behavior: "smooth"
+    });
+
+}
+
+
+
+/* ========================================================
+   ENVIAR FORMULARIO
+========================================================= */
+
+form.addEventListener(
+    "submit",
+    async function (event) {
+
+        /*
+         * MUY IMPORTANTE:
+         *
+         * Evita que el navegador vaya a
+         * /analizar y muestre el JSON.
+         */
+
+        event.preventDefault();
+
+
+        ocultarError();
+
+
+        const url =
+            document.getElementById("url")
+                .value
+                .trim();
+
+
+        if (!url) {
+
+            mostrarError(
+                "La URL es obligatoria."
+            );
+
+            return;
+
+        }
+
+
+        /* BOTÓN */
+
+        analyzeButton.disabled =
+            true;
 
         analyzeButton.textContent =
             "Analizando...";
 
+
+        /* OCULTAR RESULTADOS ANTERIORES */
+
+        resultsSection.style.display =
+            "none";
+
+
+        /* MOSTRAR LOADING */
+
         searchSection.style.display =
             "none";
+
 
         loadingSection.classList.add("show");
 
@@ -449,53 +768,120 @@ if (form) {
             "false"
         );
 
-    });
-
-}
-
-
-const statusItems =
-    document.querySelectorAll(".status-item");
-
-let currentStatus = 0;
-
-
-setInterval(function () {
-
-    if (
-        !loadingSection ||
-        !loadingSection.classList.contains("show")
-    ) {
-
-        return;
-
-    }
-
-
-    statusItems.forEach(function (item) {
-
-        item.classList.remove("active");
-
-    });
-
-
-    currentStatus++;
-
-
-    if (
-        currentStatus >= statusItems.length
-    ) {
 
         currentStatus = 0;
 
+
+        statusItems.forEach(
+            function (item, index) {
+
+                item.classList.toggle(
+                    "active",
+                    index === 0
+                );
+
+            }
+        );
+
+
+        try {
+
+
+            /* ==========================================
+               PETICIÓN AL BACKEND
+            ========================================== */
+
+            const response =
+                await fetch(
+                    "/analizar",
+                    {
+
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            url: url
+                        })
+
+                    }
+                );
+
+
+            /* ==========================================
+               LEER RESPUESTA
+            ========================================== */
+
+            const data =
+                await response.json();
+
+
+            /* ==========================================
+               COMPROBAR ERROR
+            ========================================== */
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error ||
+                    data.detalle ||
+                    "No fue posible realizar el análisis."
+                );
+
+            }
+
+
+            /* ==========================================
+               MOSTRAR RESULTADOS
+            ========================================== */
+
+            mostrarResultados(data);
+
+
+        } catch (error) {
+
+
+            console.error(
+                "Error:",
+                error
+            );
+
+
+            loadingSection.classList.remove(
+                "show"
+            );
+
+
+            loadingSection.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+
+            searchSection.style.display =
+                "block";
+
+
+            analyzeButton.disabled =
+                false;
+
+
+            analyzeButton.textContent =
+                "Analizar página";
+
+
+            mostrarError(
+                error.message ||
+                "Ocurrió un error durante el análisis."
+            );
+
+        }
+
     }
-
-
-    statusItems[currentStatus]
-        .classList.add("active");
-
-
-}, 1800);
+);
 
 
 
@@ -507,29 +893,39 @@ const backToTop =
     document.getElementById("backToTop");
 
 
-window.addEventListener("scroll", function () {
+window.addEventListener(
+    "scroll",
+    function () {
 
-    if (window.scrollY > 400) {
+        if (window.scrollY > 400) {
 
-        backToTop.classList.add("show");
+            backToTop.classList.add("show");
 
-    } else {
+        } else {
 
-        backToTop.classList.remove("show");
+            backToTop.classList.remove("show");
+
+        }
 
     }
+);
 
-});
 
+backToTop.addEventListener(
+    "click",
+    function () {
 
-backToTop.addEventListener("click", function () {
+        window.scrollTo({
 
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
+            top: 0,
 
-});
+            behavior: "smooth"
+
+        });
+
+    }
+);
+
 
 </script>
 

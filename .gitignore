@@ -1,9 +1,74 @@
-venv/
+# =========================
+# Python
+# =========================
+
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+*.pyd
+
+# Entornos virtuales
+venv/
+.venv/
+env/
+ENV/
+
+# =========================
+# Variables de entorno
+# =========================
+
 .env
 .env.*
+!.env.example
+
+# =========================
+# IDE / Editores
+# =========================
+
+.vscode/
+.idea/
+
+# =========================
+# Sistema operativo
+# =========================
+
+.DS_Store
+Thumbs.db
+
+# =========================
+# Logs
+# =========================
+
+*.log
+
+# =========================
+# Base de datos local
+# =========================
+
+*.db
+*.sqlite
+*.sqlite3
+
+# =========================
+# Cache / temporales
+# =========================
+
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
 dist/
 build/
-*.exe
-data/*.csv
+*.egg-info/
+
+# =========================
+# Selenium / Chrome
+# =========================
+
+chromedriver.log
+debug_*.html
+# =========================
+# Datos generados
+# =========================
+
+data/
